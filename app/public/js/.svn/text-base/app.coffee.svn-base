@@ -1,0 +1,51 @@
+define ['../../set'], (set) ->
+	return app =
+		do: ->
+			App = Ember.Application.create()
+			App.ApplicationRoute = Ember.Route.extend
+				model: ->
+					#read model from local file system
+					return []
+			App.ApplicationController = Ember.ObjectController.extend
+				needs: 'questions'
+				number: '100'
+				questionTokens: []
+				answerTokens: []
+				actions:
+					next: ->
+						list = @get 'model'
+						item = list.pop()
+						return false
+
+			App.QuestionsController = Ember.ArrayController.extend
+				needs: ['question', 'application']
+				#sortProperties: ['isSelected']
+				#sortAscending: false
+				actions:
+					done: (questions) ->
+						file = 
+							question: @get 'controllers.application.questionTokens'
+							answer: @get 'controllers.application.answerTokens'
+							selected: []
+
+						for question in questions
+							if question.isSelected
+								file.selected.push
+									id: question.id
+									questiontitle_original: question.questiontitle_original
+
+						
+						blob = new Blob [JSON.stringify file], {type: 'application/json;charset=utf-8'}
+						fileName = ''
+						for q in file.question
+							fileName += q
+							fileName += '-'
+						fileName += '___'
+						for a in file.answer
+							fileName += a
+							fileName += '-'
+						saveAs blob, fileName + '.json'
+
+			App.QuestionController = Ember.ObjectController.extend
+				needs: 'questions'
+			return false

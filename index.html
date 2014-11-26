@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Question Label</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script type="text/javascript" data-main="js/loader" src="js/libs/require.js"></script>
+	</head>
+	<body>
+		<script type="text/x-handlebars">
+			<div class="container">
+				<h1 class="page-header">Question Label</h1>
+				<div>
+					{{render "questions"}}
+				</div>
+				<button class="btn btn-primary" {{action "next"}}>Next</button>
+				<button class="btn btn-success" {{action "dump"}}>Dump</button>
+			</div>
+			<br />
+			<br />
+		</script>
+		<script type="text/x-handlebars" data-template-name="questions">
+			<h5>{{request}}</h5>
+			<table class="table">
+				<tr>
+					<th>Question</th>
+				</tr>
+				{{#each question in questions itemController="question"}}
+					<tr>
+						<label>
+							{{input type="checkbox" name="isSelected" class="cbx" checked=question.isSelected}}
+							{{question.text}}
+						</label
+					</tr>
+				{{/each}}
+			</table>
+		</script>
+	</body>
+</html>

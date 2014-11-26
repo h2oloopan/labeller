@@ -1,0 +1,8 @@
+.cbx {
+	width: 20px;
+	height: 20px;
+}
+
+table {
+	font-size: 1.4em;
+}
