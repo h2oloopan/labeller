@@ -1,7 +1,10 @@
 require.config
 	baseUrl: 'js/libs'
+	ehbs:
+		compile: true
+		extension: '.html'
 	paths:
-		templates: 'templates'
+		templates: '../../templates'
 		app: '../app'
 	shim:
 		'bootstrap': ['jquery']

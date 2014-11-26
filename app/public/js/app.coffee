@@ -1,11 +1,11 @@
-define ['../../set'], (set) ->
+define ['ehbs!templates/index'], () ->
 	return app =
 		do: ->
 			App = Ember.Application.create()
-			App.ApplicationRoute = Ember.Route.extend
-				model: ->
-					#read model from local file system
-					return set
+
+			App.Router.map ->
+				@route 'index',
+					path: '/'
 
 			App.ApplicationController = Ember.ObjectController.extend
 				needs: 'questions'
