@@ -5,7 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var app = express();
-
+var starter = require('./starter');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -16,10 +16,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.get('/', function(req, res) {
-    var index = 'pages/index.html';
-    res.sendfile(index, {root: __dirname});
-});
+starter.start(app);
 
 
 // catch 404 and forward to error handler
