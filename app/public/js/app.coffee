@@ -1,4 +1,4 @@
-define ['ehbs!templates/index'], () ->
+define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 	return app =
 		do: ->
 			App = Ember.Application.create()
@@ -7,89 +7,60 @@ define ['ehbs!templates/index'], () ->
 				@route 'index',
 					path: '/'
 
-			App.ApplicationController = Ember.ObjectController.extend
+
+			App.IndexView = Ember.View.extend
+				didInsertElement: ->
+					@_super()
+					$('.btn-next').click()
+
+			App.IndexController = Ember.ObjectController.extend
 				needs: 'questions'
-				file: {}
-				counter: 0
-				isAdded: false
 				actions:
 					next: ->
-						counter = @get 'counter'
+						thiz = @
+						$.get 'apis/questions/next', (data) ->
+							key = Object.keys(data.data)[0]
+							questions = []
+							for q in data.data[key]
+								questions.push
+									isSelected: false
+									text: q
 
-						if counter > 0 and !@get('isAdded')
-							#add it to file
-							file = @get 'file'
-							request = @get 'controllers.questions.request'
-							questions = @get 'controllers.questions.questions'
-							selected = []
-							for question in questions
-								if question.isSelected then selected.push question.text
-							file[request] = selected
-							@set 'file', file
+							data =
+								file: data.file
+								question: key
+								questions: questions
 
-						list = @get 'model'
-						keys = Object.keys list
-						key = keys[counter]
-						item = list[key]
-
-						questions = []
-						for one in item
-							questions.push
-								text: one
-								isSelected: false
-
-						@set 'controllers.questions.request', key
-						@set 'controllers.questions.questions', questions
-						@set 'counter', counter + 1
+							thiz.set 'controllers.questions.model', data
+						.fail (err) ->
+							thiz.set 'controllers.questions.model', 
+								question: 'There is nothing to label at the moment'
 						return false
-					dump: ->
-						if @get('counter') > 0 and !@get('isAdded')
-							#add it to file
-							file = @get 'file'
-							request = @get 'controllers.questions.request'
-							questions = @get 'controllers.questions.questions'
-							selected = []
-							for question in questions
-								if question.isSelected then selected.push question.text
-							file[request] = selected
-							@set 'file', file
-							@set 'isAdded', true
+					done: ->
+						data = @get 'controllers.questions.model'
+						questions = data.questions.filter (q) ->
+							if q.isSelected then return true
+							return false
+						questions = questions.map (q) ->
+							return q.text
 
-						file = @get 'file'
-						blob = new Blob [JSON.stringify file], {type: 'application/json;charset=utf-8'}
-						fileName = (new Date()).toString()
-						saveAs blob, fileName + '.json'
+						upload = 
+							file: data.file
+							question: data.question
+							questions: questions
+
+						$.ajax
+							type: 'POST'
+							url: 'apis/questions/new'
+							data: JSON.stringify upload
+							dataType: 'json'
+							contentType: 'application/json; charset=utf-8'
+							success: (res) ->
+								console.log res
+							failure: (res) ->
+								console.log res
+
 						return false
 
-			App.QuestionsController = Ember.ArrayController.extend
-				needs: ['question', 'application']
-				#sortProperties: ['isSelected']
-				#sortAscending: false
-				actions:
-					done: (questions) ->
-						file = 
-							question: @get 'controllers.application.questionTokens'
-							answer: @get 'controllers.application.answerTokens'
-							selected: []
 
-						for question in questions
-							if question.isSelected
-								file.selected.push
-									id: question.id
-									questiontitle_original: question.questiontitle_original
-
-						
-						blob = new Blob [JSON.stringify file], {type: 'application/json;charset=utf-8'}
-						fileName = ''
-						for q in file.question
-							fileName += q
-							fileName += '-'
-						fileName += '___'
-						for a in file.answer
-							fileName += a
-							fileName += '-'
-						saveAs blob, fileName + '.json'
-
-			App.QuestionController = Ember.ObjectController.extend
-				needs: 'questions'
-			return false
+			App.QuestionsController = Ember.ObjectController.extend {}

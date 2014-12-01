@@ -1,0 +1,18 @@
+<table class="table">
+	<thead>
+		<tr>
+			<th>Question: {{question}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each question in questions}}
+			<tr>
+				<td>
+					{{input type="checkbox" class="cbx" checked=question.isSelected}}
+					{{question.text}}
+					
+				</td>
+			</tr>
+		{{/each}}
+	</tbody>
+</table>

@@ -10,13 +10,15 @@ input = path.resolve('input');
 output = path.resolve('output');
 
 exports.bind = function(app) {
-  return app.get('/apis/questions/next', function(req, res) {
-    var content, file, inputs, json, outputs, _i, _len;
+  app.set('current', []);
+  app.get('/apis/questions/next', function(req, res) {
+    var content, current, file, inputs, json, outputs, _i, _len;
+    current = app.get('current');
     inputs = fs.readdirSync(input);
     outputs = fs.readdirSync(output);
     for (_i = 0, _len = inputs.length; _i < _len; _i++) {
       file = inputs[_i];
-      if (output.indexOf(file) < 0) {
+      if (outputs.indexOf(file) < 0 && current.indexOf(file) < 0) {
         content = fs.readFileSync(path.join(input, file), {
           encoding: 'utf8'
         });
@@ -24,9 +26,28 @@ exports.bind = function(app) {
           file: file,
           data: JSON.parse(content)
         };
+        current.push(file);
+        app.set('current', current);
         return res.status(200).send(json);
       }
     }
     return res.status(404).send({});
+  });
+  return app.post('/apis/questions/new', function(req, res) {
+    var data, err, file, question, questions;
+    file = req.body.file;
+    question = req.body.question;
+    questions = req.body.questions;
+    data = {};
+    data[question] = questions;
+    data = JSON.stringify(data);
+    file = path.join(output, file);
+    try {
+      fs.writeFileSync(file, data);
+    } catch (_error) {
+      err = _error;
+      return res.status(500).send(err);
+    }
+    return res.status(200).send({});
   });
 };
