@@ -1,24 +1,22 @@
 fs = require 'fs'
 path = require 'path'
+storage = require '../helpers/storage'
 input = path.resolve 'input'
 output = path.resolve 'output'
 
 exports.bind = (app) ->
-	app.set 'current', []
 	app.get '/apis/questions/next', (req, res) ->
-		current = app.get 'current'
 		inputs = fs.readdirSync input
 		outputs = fs.readdirSync output
 		for file in inputs
-			if outputs.indexOf(file) < 0 and current.indexOf(file) < 0
+			if outputs.indexOf(file) < 0 and !storage.exist(app, file)
 				#this is the next
 				content = fs.readFileSync path.join(input, file), 
 					encoding: 'utf8'
 				json = 
 					file: file
 					data: JSON.parse content
-				current.push file
-				app.set 'current', current
+				storage.set app, file
 				return res.status(200).send json
 		#all are done, nothing next
 		return res.status(404).send {}
