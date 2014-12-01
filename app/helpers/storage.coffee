@@ -1,6 +1,6 @@
 moment = require 'moment'
 token = 'current'
-expiry = 30
+expiry = 30000
 
 storage = module.exports = 
 	clear: (app) ->

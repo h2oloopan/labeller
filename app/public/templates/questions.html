@@ -8,9 +8,10 @@
 		{{#each question in questions}}
 			<tr>
 				<td>
+					<label>
 					{{input type="checkbox" class="cbx" checked=question.isSelected}}
 					{{question.text}}
-					
+					</label>
 				</td>
 			</tr>
 		{{/each}}

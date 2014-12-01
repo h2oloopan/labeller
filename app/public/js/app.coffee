@@ -15,7 +15,22 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 
 			App.IndexController = Ember.ObjectController.extend
 				needs: 'questions'
+				temp: []
 				actions:
+					cut: ->
+						data = @get 'controllers.questions.model'
+						reminder = data.questions.filter (q) ->
+							if q.isSelected then return false
+							return true
+						questions = data.questions.filter (q) ->
+							if q.isSelected then return true
+							return false
+						questions = questions.map (q) ->
+							return q.text
+						@set 'controllers.questions.model.questions', reminder
+						temp = @get 'temp'
+						temp.push questions
+						@set 'temp', temp
 					next: ->
 						thiz = @
 						update = ->
@@ -46,6 +61,7 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 						
 						return false
 					done: (cb) ->
+						thiz = @
 						data = @get 'controllers.questions.model'
 						questions = data.questions.filter (q) ->
 							if q.isSelected then return true
@@ -53,10 +69,14 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 						questions = questions.map (q) ->
 							return q.text
 
+						temp = @get 'temp'
+						temp.push questions
+						@set 'temp', temp
+
 						upload = 
 							file: data.file
 							question: data.question
-							questions: questions
+							questions: temp
 
 						$.ajax
 							type: 'POST'
@@ -65,6 +85,7 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 							dataType: 'json'
 							contentType: 'application/json; charset=utf-8'
 							success: (res) ->
+								thiz.set 'temp', []
 								if cb? then cb res
 							failure: (res) ->
 								console.log res

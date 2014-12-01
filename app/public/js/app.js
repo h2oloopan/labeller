@@ -18,7 +18,31 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
       });
       App.IndexController = Ember.ObjectController.extend({
         needs: 'questions',
+        temp: [],
         actions: {
+          cut: function() {
+            var data, questions, reminder, temp;
+            data = this.get('controllers.questions.model');
+            reminder = data.questions.filter(function(q) {
+              if (q.isSelected) {
+                return false;
+              }
+              return true;
+            });
+            questions = data.questions.filter(function(q) {
+              if (q.isSelected) {
+                return true;
+              }
+              return false;
+            });
+            questions = questions.map(function(q) {
+              return q.text;
+            });
+            this.set('controllers.questions.model.questions', reminder);
+            temp = this.get('temp');
+            temp.push(questions);
+            return this.set('temp', temp);
+          },
           next: function() {
             var data, thiz, update;
             thiz = this;
@@ -56,7 +80,8 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
             return false;
           },
           done: function(cb) {
-            var data, questions, upload;
+            var data, questions, temp, thiz, upload;
+            thiz = this;
             data = this.get('controllers.questions.model');
             questions = data.questions.filter(function(q) {
               if (q.isSelected) {
@@ -67,10 +92,13 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
             questions = questions.map(function(q) {
               return q.text;
             });
+            temp = this.get('temp');
+            temp.push(questions);
+            this.set('temp', temp);
             upload = {
               file: data.file,
               question: data.question,
-              questions: questions
+              questions: temp
             };
             $.ajax({
               type: 'POST',
@@ -79,6 +107,7 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
               dataType: 'json',
               contentType: 'application/json; charset=utf-8',
               success: function(res) {
+                thiz.set('temp', []);
                 if (cb != null) {
                   return cb(res);
                 }
