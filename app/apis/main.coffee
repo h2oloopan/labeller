@@ -4,11 +4,16 @@ storage = require '../helpers/storage'
 input = path.resolve 'input'
 output = path.resolve 'output'
 
+sorting = (a, b) ->
+	a = parseInt a
+	b = parseInt b
+	return a - b
+
 exports.bind = (app) ->
 	app.get '/apis/questions/next', (req, res) ->
 		inputs = fs.readdirSync input
 		outputs = fs.readdirSync output
-		for file in inputs
+		for file in inputs.sort sorting
 			if outputs.indexOf(file) < 0 and !storage.exist(app, file)
 				#this is the next
 				content = fs.readFileSync path.join(input, file), 

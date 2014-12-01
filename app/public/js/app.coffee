@@ -18,25 +18,34 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 				actions:
 					next: ->
 						thiz = @
-						$.get 'apis/questions/next', (data) ->
-							key = Object.keys(data.data)[0]
-							questions = []
-							for q in data.data[key]
-								questions.push
-									isSelected: false
-									text: q
+						update = ->
+							$.get 'apis/questions/next', (data) ->
+								key = Object.keys(data.data)[0]
+								questions = []
+								for q in data.data[key]
+									questions.push
+										isSelected: false
+										text: q
 
-							data =
-								file: data.file
-								question: key
-								questions: questions
+								data =
+									file: data.file
+									question: key
+									questions: questions
 
-							thiz.set 'controllers.questions.model', data
-						.fail (err) ->
-							thiz.set 'controllers.questions.model', 
-								question: 'There is nothing to label at the moment'
+								thiz.set 'controllers.questions.model', data
+							.fail (err) ->
+								thiz.set 'controllers.questions.model', 
+									question: 'There is nothing to label at the moment'
+
+						data = @get 'controllers.questions.model'
+						if data? and data.file?
+							@send 'done', update
+						else
+							update()
+							
+						
 						return false
-					done: ->
+					done: (cb) ->
 						data = @get 'controllers.questions.model'
 						questions = data.questions.filter (q) ->
 							if q.isSelected then return true
@@ -56,7 +65,7 @@ define ['ehbs!templates/index', 'ehbs!templates/questions'], () ->
 							dataType: 'json'
 							contentType: 'application/json; charset=utf-8'
 							success: (res) ->
-								console.log res
+								if cb? then cb res
 							failure: (res) ->
 								console.log res
 

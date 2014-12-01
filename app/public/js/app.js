@@ -20,34 +20,42 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
         needs: 'questions',
         actions: {
           next: function() {
-            var thiz;
+            var data, thiz, update;
             thiz = this;
-            $.get('apis/questions/next', function(data) {
-              var key, q, questions, _i, _len, _ref;
-              key = Object.keys(data.data)[0];
-              questions = [];
-              _ref = data.data[key];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                q = _ref[_i];
-                questions.push({
-                  isSelected: false,
-                  text: q
+            update = function() {
+              return $.get('apis/questions/next', function(data) {
+                var key, q, questions, _i, _len, _ref;
+                key = Object.keys(data.data)[0];
+                questions = [];
+                _ref = data.data[key];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  q = _ref[_i];
+                  questions.push({
+                    isSelected: false,
+                    text: q
+                  });
+                }
+                data = {
+                  file: data.file,
+                  question: key,
+                  questions: questions
+                };
+                return thiz.set('controllers.questions.model', data);
+              }).fail(function(err) {
+                return thiz.set('controllers.questions.model', {
+                  question: 'There is nothing to label at the moment'
                 });
-              }
-              data = {
-                file: data.file,
-                question: key,
-                questions: questions
-              };
-              return thiz.set('controllers.questions.model', data);
-            }).fail(function(err) {
-              return thiz.set('controllers.questions.model', {
-                question: 'There is nothing to label at the moment'
               });
-            });
+            };
+            data = this.get('controllers.questions.model');
+            if ((data != null) && (data.file != null)) {
+              this.send('done', update);
+            } else {
+              update();
+            }
             return false;
           },
-          done: function() {
+          done: function(cb) {
             var data, questions, upload;
             data = this.get('controllers.questions.model');
             questions = data.questions.filter(function(q) {
@@ -71,7 +79,9 @@ define(['ehbs!templates/index', 'ehbs!templates/questions'], function() {
               dataType: 'json',
               contentType: 'application/json; charset=utf-8',
               success: function(res) {
-                return console.log(res);
+                if (cb != null) {
+                  return cb(res);
+                }
               },
               failure: function(res) {
                 return console.log(res);
