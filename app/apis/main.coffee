@@ -17,6 +17,7 @@ exports.bind = (app) ->
 		for file in inputs.sort sorting
 			if outputs.indexOf(file) < 0 and !storage.exist(app, file)
 				#this is the next
+				console.log file
 				content = fs.readFileSync path.join(input, file), 
 					encoding: 'utf8'
 				json = 

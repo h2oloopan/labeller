@@ -27,6 +27,7 @@ exports.bind = function(app) {
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       file = _ref[_i];
       if (outputs.indexOf(file) < 0 && !storage.exist(app, file)) {
+        console.log(file);
         content = fs.readFileSync(path.join(input, file), {
           encoding: 'utf8'
         });
