@@ -11,16 +11,16 @@ sorting = (a, b) ->
 
 exports.bind = (app) ->
 	app.get '/apis/questions/next', (req, res) ->
-		console.log 'wth'
+		#console.log 'wth'
 		inputs = fs.readdirSync input
 		outputs = fs.readdirSync output
 		for file in inputs.sort sorting
 			if outputs.indexOf(file) < 0 and !storage.exist(app, file)
 				#this is the next
-				console.log file
+				#console.log file
 				content = fs.readFileSync path.join(input, file), 
 					encoding: 'utf8'
-				console.log content
+				#console.log content
 				json = 
 					file: file
 					data: JSON.parse content

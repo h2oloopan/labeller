@@ -20,18 +20,15 @@ sorting = function(a, b) {
 exports.bind = function(app) {
   app.get('/apis/questions/next', function(req, res) {
     var content, file, inputs, json, outputs, _i, _len, _ref;
-    console.log('wth');
     inputs = fs.readdirSync(input);
     outputs = fs.readdirSync(output);
     _ref = inputs.sort(sorting);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       file = _ref[_i];
       if (outputs.indexOf(file) < 0 && !storage.exist(app, file)) {
-        console.log(file);
         content = fs.readFileSync(path.join(input, file), {
           encoding: 'utf8'
         });
-        console.log(content);
         json = {
           file: file,
           data: JSON.parse(content)
