@@ -11,6 +11,7 @@ sorting = (a, b) ->
 
 exports.bind = (app) ->
 	app.get '/apis/questions/next', (req, res) ->
+		console.log 'wth'
 		inputs = fs.readdirSync input
 		outputs = fs.readdirSync output
 		for file in inputs.sort sorting

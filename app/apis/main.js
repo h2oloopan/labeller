@@ -20,6 +20,7 @@ sorting = function(a, b) {
 exports.bind = function(app) {
   app.get('/apis/questions/next', function(req, res) {
     var content, file, inputs, json, outputs, _i, _len, _ref;
+    console.log('wth');
     inputs = fs.readdirSync(input);
     outputs = fs.readdirSync(output);
     _ref = inputs.sort(sorting);
