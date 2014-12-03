@@ -24,6 +24,7 @@ exports.bind = (app) ->
 				json = 
 					file: file
 					data: JSON.parse content
+				console.log json
 				storage.set app, file
 				return res.status(200).send json
 		#all are done, nothing next
