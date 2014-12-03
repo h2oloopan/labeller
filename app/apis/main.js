@@ -31,6 +31,7 @@ exports.bind = function(app) {
         content = fs.readFileSync(path.join(input, file), {
           encoding: 'utf8'
         });
+        console.log(content);
         json = {
           file: file,
           data: JSON.parse(content)
